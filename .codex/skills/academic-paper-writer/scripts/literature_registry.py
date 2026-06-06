@@ -1257,7 +1257,7 @@ def cmd_export_bibtex(args: argparse.Namespace) -> int:
     init_schema(conn)
 
     # Gate enforcement: refuse export unless verified (can force override)
-    must_be_verified = getattr(args, "must_be_verified", False)
+    must_be_verified = getattr(args, "must_be_verified", True)
     force = getattr(args, "force", False)
 
     if must_be_verified and not force:
@@ -1486,27 +1486,8 @@ def cmd_check_consistency(args: argparse.Namespace) -> int:
     return 1 if discrepancies else 0
 
 
-def cmd_verify_citation(args: argparse.Namespace) -> int:
-    """Verify a citation by DOI or by title+author via CrossRef API.
-
-    Results are persisted to the verifications table for audit trail
-    and downstream enforcement (e.g., export-bibtex --must-be-verified).
-    """
-    # Open DB connection to persist verification results
-    db_path = resolve_db_path(args)
-    conn = connect(db_path)
-    init_schema(conn)
-
-    if args.doi:
-        result = verify_citation_by_doi(args.doi, conn=conn)
-    elif args.title:
-        result = verify_citation_by_title(args.title, author=args.author, conn=conn)
-    else:
-        conn.close()
-        print("error: must provide --doi or --title", file=sys.stderr)
-        return 1
-
-    # Record verification in database
+def _record_verification_result(conn, result):
+    """Persist verification result to database. Returns the result dict (may be updated)."""
     work_id = None
     if result.get("doi"):
         row = conn.execute(
@@ -1528,9 +1509,11 @@ def cmd_verify_citation(args: argparse.Namespace) -> int:
         resolved_journal=result.get("journal"),
         error_message=result.get("error"),
     )
+    return result
 
-    conn.close()
 
+def _print_verification_result(result):
+    """Print verification result to stdout."""
     if result["status"] == "pass":
         print(f"\n  VERIFIED: {result['status'].upper()}")
         print(f"  Title:    {result.get('title', 'N/A')}")
@@ -1548,7 +1531,6 @@ def cmd_verify_citation(args: argparse.Namespace) -> int:
         if result.get("retraction_warning"):
             print(f"  WARNING:  {result['retraction_warning']}")
         print()
-        return 0
     else:
         print(f"\n  VERIFICATION FAILED")
         print(f"  Status: {result['status']}")
@@ -1558,7 +1540,190 @@ def cmd_verify_citation(args: argparse.Namespace) -> int:
         if result.get("retraction_warning"):
             print(f"  WARNING: {result['retraction_warning']}")
         print()
-        return 1
+
+
+def _cascade_to_title(doi, conn):
+    """Try title-based verification using metadata from the works table."""
+    row = conn.execute(
+        "SELECT title, authors_json FROM works WHERE doi = ? LIMIT 1;",
+        (doi,),
+    ).fetchone()
+    if not row or not row["title"]:
+        return None
+    authors = json.loads(row["authors_json"] or "[]")
+    first_author = authors[0] if authors else None
+    return verify_citation_by_title(row["title"], author=first_author, conn=conn)
+
+
+def cmd_verify_citation(args: argparse.Namespace) -> int:
+    """Verify a citation by DOI, title+author, or manual confirmation.
+
+    Auto-cascades from failed DOI to title search unless --no-cascade is set.
+    Supports --manual for human-confirmed verification without API call.
+
+    Results are persisted to the verifications table for audit trail
+    and downstream enforcement (e.g., export-bibtex).
+    """
+    db_path = resolve_db_path(args)
+    conn = connect(db_path)
+    init_schema(conn)
+
+    # ── Manual mode: record human-confirmed pass ──
+    if getattr(args, "manual", False):
+        if not args.doi:
+            conn.close()
+            print("error: --manual requires --doi", file=sys.stderr)
+            return 1
+        result = {
+            "status": "pass",
+            "method": "manual",
+            "doi": _clean_doi(args.doi) if args.doi else "",
+            "title": getattr(args, "manual_title", None),
+            "authors": [a.strip() for a in getattr(args, "manual_authors", "").split(",") if a.strip()] if getattr(args, "manual_authors", None) else [],
+            "year": getattr(args, "manual_year", None),
+            "journal": getattr(args, "manual_journal", None),
+            "error": None,
+        }
+        _record_verification_result(conn, result)
+        _print_verification_result(result)
+        conn.close()
+        return 0 if result["status"] == "pass" else 1
+
+    # ── DOI mode (with auto-cascade) ──
+    no_cascade = getattr(args, "no_cascade", False)
+    if args.doi:
+        result = verify_citation_by_doi(args.doi, conn=conn)
+        _record_verification_result(conn, result)
+        if result["status"] != "pass" and not no_cascade:
+            print("  DOI verification failed — auto-cascading to title search...")
+            cascade_result = _cascade_to_title(_clean_doi(args.doi), conn)
+            if cascade_result and cascade_result["status"] == "pass":
+                result = cascade_result
+                _record_verification_result(conn, result)
+                print("  Auto-cascade succeeded via title search.")
+        _print_verification_result(result)
+        # Extract metadata for prompt before closing connection
+        doi_clean = _clean_doi(args.doi)
+        fallback_title = ""
+        fallback_authors = ""
+        row = conn.execute(
+            "SELECT title, authors_json FROM works WHERE doi = ? LIMIT 1;",
+            (doi_clean,),
+        ).fetchone()
+        if row:
+            fallback_title = row["title"] or ""
+            authors = json.loads(row["authors_json"] or "[]")
+            fallback_authors = ", ".join(authors[:3]) if authors else ""
+        conn.close()
+
+        if result["status"] == "pass":
+            return 0
+
+        # Auto-cascade also failed — prompt user for next action
+        print()
+        print("─" * 50)
+        print("Both DOI and title verification failed.")
+        print()
+        print("Next actions:")
+        print("  [m] Manual confirmation  — manually verify and record pass")
+        print("  [f] Fact-driven re-search — find alternative paper for same claim")
+        print("  [d] Discard               — accept failure, move on")
+        print()
+        choice = input("Choose [m/f/d]: ").strip().lower()
+        print()
+        if choice == "m":
+            print("Run manual confirmation with:")
+            print(f"  verify-citation --manual --doi \"{doi_clean}\" \\")
+            if fallback_title:
+                print(f"    --title \"{fallback_title[:80]}\" \\")
+            if fallback_authors:
+                print(f"    --authors \"{fallback_authors}\"")
+            print()
+            return 1
+        elif choice == "f":
+            print("Fact-driven re-search workflow:")
+            print(f"  1. Locate @{{{doi_clean}}} in main.typ")
+            print(f"  2. Extract the core factual claim")
+            print(f"  3. Search: search all \"<fact-claim>\"")
+            print(f"  4. Verify candidates, replace @key, update CSV")
+            print()
+            return 1
+        else:
+            print("Citation discarded. Mark as TODO or remove.")
+            print()
+            return 1
+
+    # ── Title mode ──
+    if args.title:
+        result = verify_citation_by_title(args.title, author=args.author, conn=conn)
+        _record_verification_result(conn, result)
+        _print_verification_result(result)
+        conn.close()
+        return 0 if result["status"] == "pass" else 1
+
+    conn.close()
+    print("error: must provide --doi, --title, or --manual", file=sys.stderr)
+    return 1
+
+
+def cmd_verify_all(args: argparse.Namespace) -> int:
+    """Batch-verify all unverified or failed citations in the registry.
+
+    Scans the works table for entries that have no passing verification record,
+    and runs verify-citation --doi on each. When a DOI is available, the
+    auto-cascade to title search applies automatically.
+
+    Use --limit to cap the number of verifications in one run.
+    """
+    db_path = resolve_db_path(args)
+    conn = connect(db_path)
+    init_schema(conn)
+
+    # Find works that need verification
+    rows = conn.execute("""
+        SELECT w.work_id, w.source, w.source_id, w.title, w.doi, w.authors_json
+        FROM works w
+        WHERE w.doi IS NOT NULL AND w.doi != ''
+          AND w.work_id NOT IN (
+            SELECT DISTINCT work_id FROM verifications
+            WHERE work_id IS NOT NULL AND status = 'pass'
+          )
+        ORDER BY w.last_seen_at DESC
+    """).fetchall()
+
+    if not rows:
+        print("All citations already verified.")
+        conn.close()
+        return 0
+
+    limit = getattr(args, "limit", 0) or len(rows)
+    count = min(limit, len(rows))
+    print(f"Found {len(rows)} unverified citations. Verifying up to {count}...\n")
+
+    passed = 0
+    failed = 0
+    for i, row in enumerate(rows[:count]):
+        doi = row["doi"]
+        title = row["title"]
+        print(f"[{i+1}/{count}] {doi} — {title[:60]}...")
+        result = verify_citation_by_doi(doi, conn=conn)
+        _record_verification_result(conn, result)
+        if result["status"] != "pass":
+            cascade_result = _cascade_to_title(_clean_doi(doi), conn)
+            if cascade_result and cascade_result["status"] == "pass":
+                result = cascade_result
+                _record_verification_result(conn, result)
+                print("  Auto-cascade passed via title search.")
+        if result["status"] == "pass":
+            passed += 1
+        else:
+            failed += 1
+        print()
+
+    conn.commit()
+    conn.close()
+    print(f"Batch verification complete: {passed} passed, {failed} failed.")
+    return 0 if failed == 0 else 1
 
 
 def cmd_add_manual(args: argparse.Namespace) -> int:
@@ -1614,6 +1779,14 @@ def main() -> int:
     sp_verify.add_argument("--doi", help="DOI to verify (e.g. 10.1234/example)")
     sp_verify.add_argument("--title", help="Paper title to search (fallback when no DOI)")
     sp_verify.add_argument("--author", help="Author name to narrow title search")
+    sp_verify.add_argument("--no-cascade", action="store_true", help="Disable auto-cascade from DOI to title search")
+    sp_verify.add_argument("--manual", action="store_true", help="Record a manual verification pass (requires --doi)")
+    sp_verify.add_argument("--manual-title", help="Title for manual verification")
+    sp_verify.add_argument("--manual-authors", help="Comma-separated authors for manual verification")
+    sp_verify.add_argument("--manual-year", help="Year for manual verification")
+    sp_verify.add_argument("--manual-journal", help="Journal for manual verification")
+    sp_verify_all = sub.add_parser("verify-all", help="Batch-verify all unverified citations")
+    sp_verify_all.add_argument("--limit", type=int, default=0, help="Max verifications per run (0 = unlimited)")
     sub.add_parser("add-manual", help="Add a work manually via stdin JSON")
 
     args = parser.parse_args()
@@ -1628,6 +1801,7 @@ def main() -> int:
         "cross-ref": cmd_cross_ref,
         "check-consistency": cmd_check_consistency,
         "verify-citation": cmd_verify_citation,
+        "verify-all": cmd_verify_all,
         "add-manual": cmd_add_manual,
     }
     handler = commands.get(args.command)

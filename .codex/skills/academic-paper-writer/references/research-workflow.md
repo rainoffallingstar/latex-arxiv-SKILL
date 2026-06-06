@@ -56,6 +56,34 @@ Purpose: build a verified, scoped literature base without over-collecting or dri
 4. **Only after verification passes**, export to ref.bib via `export-bibtex`.
 5. Never add a citation to `ref.bib` without first passing the verification gate.
 
+
+### Failure paths
+When verification fails, proceed through these stages in order:
+
+1. **Auto-cascade**: `verify-citation --doi` automatically retries via title
+   search using metadata from the registry cache. No manual intervention needed.
+   Use `--no-cascade` to disable.
+
+2. **Manual confirmation**: open the paper's source page (DOI link or arXiv abs
+   URL). Verify title, authors, and year match. Record via:
+   ```bash
+   verify-citation --manual --doi "..." --title "..." --authors "..." --year "..."
+   ```
+
+3. **Fact-driven re-search**: if the paper cannot be confirmed, extract the
+   factual claim from the surrounding sentence. Search for alternative papers
+   supporting the same claim, verify them, and replace the citation.
+   See SKILL.md → "Fact-Driven Citation Replacement" for the full procedure.
+
+4. **Discard**: if no alternative exists and the claim is non-critical, remove
+   the citation and mark the claim as TODO. Ask the user to provide a source.
+
+Batch-verify all pending citations with:
+```bash
+python3 scripts/literature_registry.py --project-dir <paper_dir> verify-all
+```
+
+
 ## Evidence discipline
 - Never fabricate citations or results
 - Mark uncertainty as TODO and ask the user

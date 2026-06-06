@@ -142,18 +142,67 @@ For each writing issue in the CSV:
      python3 scripts/literature_registry.py --project-dir <paper_dir> verify-citation --title "Paper Title" --author "Smith"
      ```
 
-   - **After verification passes**, export to ref.bib:
+   - **After verification passes**, export to ref.bib. The gate is enforced by default — unverified citations are rejected unless --force is used:
      ```bash
      python3 scripts/literature_registry.py --project-dir <paper_dir> export-bibtex <source> <source_id> --bib <paper_dir>/ref.bib
      ```
 
    - Web search + open source page (and PDF if available) as a secondary sanity check.
 
+   - **Verification failure handling** (when verify-citation fails):
+     
+     Failures cascade automatically: DOI → title search. If both fail, follow
+     this priority:
+     
+     a. **Auto-cascade** (built-in): `verify-citation --doi` automatically
+        retries via title search using metadata from the registry. Pass
+        `--no-cascade` to disable.
+     
+     b. **Manual confirmation**: Open the source page and confirm the paper
+        exists with matching title, authors, and year. Record the pass via:
+        ```bash
+        python3 scripts/literature_registry.py --project-dir <paper_dir> verify-citation --manual \
+          --doi "10.1234/example" --title "Paper Title" \
+          --authors "Smith, Jones" --year "2023" --journal "Nature"
+        ```
+     
+     c. **Re-search for alternatives** (see below): if the paper cannot be
+        confirmed, search for a different paper that supports the same claim.
+     
+     d. **Discard**: if no alternative exists and the claim is non-critical,
+        remove the citation and mark TODO, asking the user for a source.
+
+   - **Batch verification**: verify all unverified citations at once:
+     ```bash
+     python3 scripts/literature_registry.py --project-dir <paper_dir> verify-all
+     ```
+     Use `--limit N` to cap the number of verifications.
+
+
 5. **Update**: Mark issue `DONE` with `Verified_Citations` count.
 6. Compile after meaningful changes:
    ```bash
    python3 scripts/compile_paper.py --project-dir <paper_dir>
    ```
+
+
+#### Fact-Driven Citation Replacement
+
+When a citation cannot be verified and a replacement paper is needed:
+
+1. **Extract the claim**: identify the sentence containing `@failed-key` and
+   extract the core factual claim (one sentence max).
+2. **Re-search**: use the factual claim as a query to find alternative papers:
+   ```bash
+   python3 scripts/literature_registry.py --project-dir <paper_dir> search all "<fact-claim>"
+   ```
+3. **Match and verify**: verify the top candidates via `verify-citation --doi`.
+   Confirm the paper's abstract aligns with the original claim.
+4. **Replace**: update `main.typ` — replace `@failed-key` with `@new-key`.
+   Adjust surrounding wording only if necessary to match the new source.
+5. **Track**: add a note in the issues CSV recording the substitution
+   (e.g., `@old-key → @new-key: <reason>`).
+
 
 **After the last writing issue (conclusion) is marked `DONE`**: draft the abstract. The abstract should reflect the completed paper, not the placeholder from the template. Revisit and finalize after QA (Phase 3).
 
