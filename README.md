@@ -94,7 +94,31 @@ Phase 2: per-issue writing loop (research → write → verify → update)
 Phase 3: QA + cross-ref dedup + compile → deliver
 ```
 
-See [SKILL.md](.codex/skills/academic-paper-writer/SKILL.md) for the full gated workflow.
+
+## Citation Verification (Mandatory Gate)
+
+Every citation undergoes a **three-stage verification pipeline** before entering `ref.bib`. Unverified citations are rejected by default at the export gate.
+
+### Verification Pipeline
+```
+verify-citation --doi → PASS → export-bibtex → ref.bib
+         ↓ FAIL
+    auto-cascade: title search → PASS
+         ↓ FAIL
+    interactive prompt: [m] manual / [f] re-search / [d] discard
+```
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Auto-cascade** | DOI failure automatically retries via title search using registry metadata |
+| **Manual confirmation** | `--manual` flag records human-confirmed passes without API call |
+| **Interactive prompt** | When all automated checks fail, choose next action inline |
+| **Batch verification** | `verify-all` scans the entire registry for unverified citations |
+| **Fact-driven re-search** | Failed citation → extract claim → search for alternative paper → replace |
+| **Enforced gate** | `export-bibtex` refuses unverified entries unless `--force` is used |
+
 
 ## Environment
 
