@@ -1,0 +1,74 @@
+# Paper Configuration Schema
+# Used by paper_config.py and the paper-writing agent to drive:
+#   - Output format (Typst primary, LaTeX legacy)
+#   - LaTeX template selection
+#   - Citation style
+#   - Literature source preferences
+#   - Section framework
+#   - Visualization preferences
+#
+# All fields have sensible defaults inferred from the topic domain.
+
+# --- required fields ---
+
+topic: ""                     # Full paper topic description (1-2 sentences)
+domain: ""                    # Primary academic domain (computer-science, biomedical, physics, etc.)
+output_format: "typst"        # Output format: typst (default) | latex | markdown
+
+# --- language ---
+
+language: "en"                # Detected language: en | zh | ja | ko | mixed
+
+# --- template & formatting ---
+
+template_class: "article"     # Logical template class: IEEEtran | article | biomedical
+citation_style: "author-year" # ieee (numbered) | author-year (natbib/apa.csl)
+
+# --- literature discovery ---
+
+preferred_sources:            # Ordered list of literature sources to search
+  - openalex
+  - paper-search
+  # Available: arxiv, pubmed, openalex, europepmc, biorxiv, paper-search
+
+# --- paper structure ---
+
+section_framework:            # Ordered list of section headings
+  - Introduction
+  - Background and Related Work
+  - Core Approaches and Methods
+  - Key Challenges and Open Problems
+  - Future Directions
+  - Conclusion
+
+# --- visualization ---
+
+visualization_prefs:          # Preferred visualization types for this paper
+  - conceptual-diagrams
+  - comparison-tables
+  - taxonomy-figures
+  - data-plots
+
+# --- quality thresholds (optional overrides) ---
+
+quality_targets:              # All are optional; defaults shown
+  main_text_pages: [6, 10]    # Target page range (excluding references)
+  total_citations: [60, 80]   # Target citation count
+  citations_per_section: 8    # Minimum citations per section
+  recency_ratio: 0.7          # Fraction of citations from last 3 years
+  visual_types_min: 5         # Minimum distinct visualization types
+  citation_verification: 1.0  # Required citation verification rate
+
+# --- iterative review (Phase 2.x) ---
+
+iteration:
+  enabled: true               # Enable multi-round iterative review gate
+  max_rounds: 5               # Maximum review rounds before forced progression
+  min_citations_per_section: 8  # Sections below this trigger P0 gaps
+  review_triggers:            # What triggers a review round
+    - user_invokes_review     # User says "review and assess"
+    - after_all_writing       # Auto-trigger after all Wx issues DONE
+  auto_fix:                   # Automatic gap handling behavior
+    P0: true                  # Auto-fix P0 gaps (blocking)
+    P1: ask_user              # Ask user before fixing P1
+    P2: skip                  # Skip P2 unless user requests

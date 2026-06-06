@@ -1,0 +1,10 @@
+ID,Phase,Title,Description,Target_Citations,Visualization,Acceptance,Status,Verified_Citations,Sources,Notes
+R1,Research,Literature snapshot,"Discover key Transformer papers (2017-2024)",0,N/A,"Snapshot of 10 papers created",DONE,0,"arxiv,paper-search","Duplicate/split/insert rows as needed"
+W1,Writing,Introduction,"Write introduction: establish context and outline",3,conceptual-diagram,"Section complete with 3+ citations",DONE,3,arxiv,
+W2,Writing,Pre-Training and Transfer Learning,"Write pre-training section: BERT, GPT-3, T5, LLaMA",4,N/A,"Section complete with 4+ citations",DONE,5,arxiv,
+W3,Writing,Architectural Adaptations Beyond Text,"Write vision/multi-modal section: ViT, Swin, GPT-4",3,architecture-diagram,"Section complete with 1 figure + 3+ citations",DONE,4,arxiv,
+W4,Writing,Efficient Attention Mechanisms,"Write efficiency section: FlashAttention, sparse attention",2,comparison-table,"Section complete with 1 table + 2+ citations",DONE,3,arxiv,
+W5,Writing,Conclusion,"Synthesize key takeaways and open challenges",2,N/A,"Section complete; no new claims",DONE,2,arxiv,
+RF1,Refinement,Rhythm refinement,"Apply latex-rhythm-refiner skill after all W issues DONE",0,N/A,"All sections refined; citations preserved",DONE,0,,
+Q1,QA,Citation verification,"Verify all 10 citations via DOI or source page",0,N/A,"All 10 citations verified",DONE,10,"arxiv,paper-search",
+Q2,QA,Compilation,"Compile and fix errors",0,N/A,"PDF compiled successfully (110KB)",DONE,0,,

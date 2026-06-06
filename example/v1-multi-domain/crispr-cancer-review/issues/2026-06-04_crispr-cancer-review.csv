@@ -1,0 +1,12 @@
+ID,Phase,Title,Description,Target_Citations,Visualization,Acceptance,Status,Verified_Citations,Sources,Notes
+R1,Research,Literature snapshot,Discover 10-20 key papers on CRISPR in oncology,15,N/A,Snapshot with core papers identified,DONE,15,pubmed|europepmc,Core literature base assembled
+W1,Writing,Introduction,Write introduction establishing cancer burden and CRISPR potential,8,N/A,Section complete with scope defined,DONE,8,"",
+W2,Writing,CRISPR Technology Overview,Describe Cas9/Cas12/Cas13 systems and editing mechanisms,10,mechanism-diagrams,Key systems described with diagram,DONE,10,pubmed,""
+W3,Writing,Mechanisms in Cancer,Detail oncogene targeting tumor suppressor restoration and immune editing,12,pathway-maps,Mechanisms documented with pathway figure,DONE,12,pubmed|openalex,""
+W4,Writing,Therapeutic Applications,Review by cancer type: lung colorectal leukemia etc.,15,clinical-trial-tables,Applications summarized with trial table,DONE,14,pubmed|europepmc|openalex,""
+W5,Writing,Delivery Challenges,Discuss viral vs. non-viral delivery in vivo vs. ex vivo,8,N/A,Delivery approaches compared,DONE,8,"",
+W6,Writing,Clinical Translation,Summarize ongoing trials and regulatory considerations,10,N/A,Trials and regulatory landscape covered,DONE,9,pubmed,""
+W7,Writing,Future Perspectives,Synthesize emerging directions and open questions,6,N/A,Future directions outlined,DONE,6,"",
+Q1,QA,Citation verification,Verify all citations online,0,N/A,All citations confirmed,DONE,0,"",
+Q2,QA,Cross-reference dedup,Run literature_registry.py cross-ref to merge DOI duplicates,0,N/A,No duplicates found,DONE,0,"",
+Q3,QA,Compilation check,Compile and verify no errors,0,N/A,main.pdf generated clean,DONE,0,"",

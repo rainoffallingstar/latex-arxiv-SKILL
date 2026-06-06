@@ -1,27 +1,39 @@
 ---
 name: latex-rhythm-refiner
 description: >
-  Post-process LaTeX project prose to improve readability through varied
-  sentence and paragraph lengths. Removes filler phrases and unnecessary
-  transitions while preserving all citations and semantic meaning.
+  Post-process academic prose (Typst, LaTeX, or Markdown) to improve readability
+  through varied sentence and paragraph lengths. Removes filler phrases and
+  unnecessary transitions while preserving all citations and semantic meaning.
+metadata:
+  short-description: Refine academic prose rhythm across Typst, LaTeX, and Markdown
 ---
 
-# LaTeX Rhythm Refiner
+# Academic Prose Rhythm Refiner
 
 ## When to Use
-- After LaTeX content generation is complete
+- After content generation is complete (Typst, LaTeX, or Markdown)
 - To improve prose flow and readability in academic documents
 - When sections feel monotonous or blocky
 
 ## When NOT to Use
 - During initial content drafting
 - For citation verification or addition
-- For technical/structural LaTeX fixes
+- For technical/structural format fixes
+
+## Supported Formats
+
+| Format | Citation Syntax | File Extension |
+|--------|----------------|----------------|
+| Typst | `@key` | `.typ` |
+| LaTeX | `\cite{key}`, `\citep{key}`, `\citet{key}` | `.tex` |
+| Markdown | `[@key]` (pandoc), `@key` (bare) | `.md` |
 
 ## Core Principles
 
 ### 1. Preserve Citations Exactly
-- Every `\cite{...}` must remain in place
+- Typst: Every `@key` must remain in place
+- LaTeX: Every `\cite{...}` must remain in place
+- Markdown: Every `[@key]` must remain in place
 - Citations stay attached to their original semantic context
 - Never move a citation to a different claim or sentence meaning
 
@@ -63,7 +75,7 @@ Remove when structure already implies the relationship:
 Process one section at a time:
 
 1. **Read** the section fully to understand context and argument flow
-2. **Identify** all `\cite{...}` locations and their attached claims
+2. **Identify** all citation locations (Typst `@key`, LaTeX `\cite{}`, Markdown `[@key]`) and their attached claims
 3. **Map** current sentence/paragraph lengths
 4. **Refine**:
    - Vary sentence lengths (break long chains, combine choppy sequences)
@@ -83,8 +95,8 @@ Before finalizing each section:
 - [ ] Technical accuracy preserved
 
 ## Constraints
-- **Do not** add, remove, or relocate citations
+- **Do not** add, remove, or relocate citations (any format)
 - **Do not** change technical claims or data
-- **Do not** alter LaTeX commands, environments, or structure
+- **Do not** alter formatting commands or environments (Typst `#set`/`#show`, LaTeX `\usepackage`, Markdown frontmatter)
 - **Do not** modify figure/table references or captions
 - **Do not** expand abbreviations or change terminology

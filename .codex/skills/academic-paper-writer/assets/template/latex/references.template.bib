@@ -1,0 +1,195 @@
+% REFERENCES.TEMPLATE.BIB
+% This file contains examples of BibTeX entries for academic papers.
+% Replace these placeholder entries with your verified references.
+% Each entry has a unique citationKey that you reference using \cite{citationKey}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% JOURNAL ARTICLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, journal, year
+% Optional fields: volume, number, pages, month, doi, url
+
+@article{author2023paper,
+  title     = {Title of the Journal Paper},
+  author    = {Author, First Name and Second Author, Name and Third Author, Name},
+  journal   = {Journal Name},
+  volume    = {42},
+  number    = {3},
+  pages     = {123--145},
+  year      = {2023},
+  month     = {jan},
+  doi       = {10.xxxx/xxxxx},
+  url       = {https://doi.org/10.xxxx/xxxxx}
+}
+
+% Example of a journal article with many authors (use 'and' between authors)
+@article{smith2022review,
+  title     = {A Review of Recent Advances in [Field]},
+  author    = {Smith, John and Johnson, Emily and Williams, Michael and Brown, Sarah and Davis, Robert and Miller, Jennifer and Wilson, David and others},
+  journal   = {Journal of [Field]},
+  volume    = {33},
+  number    = {5},
+  pages     = {1812--1830},
+  year      = {2022},
+  doi       = {10.xxxx/xxxxx}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONFERENCE PAPERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, booktitle, year
+% Optional fields: editor, volume, number, series, pages, address, month, organization, publisher, doi, url
+
+@inproceedings{jones2023method,
+  title        = {A Novel Method for [Topic] Analysis},
+  author       = {Jones, Alice and Liu, Wei and Garcia, Carlos},
+  booktitle    = {Proceedings of the International Conference on [Field]},
+  series       = {ICF'23},
+  pages        = {2245--2253},
+  year         = {2023},
+  address      = {Honolulu, Hawaii},
+  month        = {jul},
+  publisher    = {[Publisher]},
+  volume       = {202},
+  doi          = {10.xxxx/xxxxx}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PREPRINTS (arXiv, bioRxiv, etc.)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, year, eprint number
+% Optional fields: month, url, doi
+
+@article{zhang2024survey,
+  title         = {A Comprehensive Survey of [Topic]},
+  author        = {Zhang, Wei and Anderson, Thomas and Kumar, Priya and Chen, Li},
+  journal       = {arXiv preprint arXiv:2401.12345},
+  year          = {2024},
+  eprint        = {2401.12345},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2401.12345}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BOOKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author/editor, title, publisher, year
+% Optional fields: volume, series, address, edition, month, isbn, doi, url
+
+@book{author2016textbook,
+  title     = {Foundations of [Field]},
+  author    = {Author, First and Author, Second and Author, Third},
+  publisher = {University Press},
+  year      = {2016},
+  address   = {Cambridge, MA},
+  isbn      = {978-xxxxxxxxxx},
+  url       = {https://example.com/textbook}
+}
+
+% Book with editors instead of authors
+@book{editor2006handbook,
+  title     = {Handbook of [Field] Research},
+  editor    = {Editor, Name},
+  publisher = {Springer},
+  year      = {2006},
+  isbn      = {978-xxxxxxxxxx}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BOOK CHAPTERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, booktitle, publisher, year
+% Optional fields: editor, chapter, pages, address, edition, month, isbn, doi, url
+
+@incollection{miller2022chapter,
+  title     = {Advances in [Subtopic]},
+  author    = {Miller, Samantha and Wilson, James},
+  booktitle = {Handbook of [Field] Applications},
+  editor    = {Johnson, Robert and Davis, Emma},
+  chapter   = {8},
+  pages     = {213--248},
+  publisher = {Springer},
+  year      = {2022},
+  address   = {New York, NY},
+  doi       = {10.xxxx/xxxxx}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TECHNICAL REPORTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, institution, year
+% Optional fields: type, number, address, month, doi, url
+
+@techreport{wang2023report,
+  title       = {A Comprehensive Analysis of [Topic]},
+  author      = {Wang, Hua and Thompson, John and Patel, Neha},
+  institution = {University of [Name]},
+  number      = {TR-2023-01},
+  year        = {2023},
+  month       = {mar},
+  url         = {https://example.edu/reports/TR-2023-01.pdf}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THESES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author, title, school, year
+% Optional fields: type, address, month, doi, url
+
+@phdthesis{chen2022thesis,
+  title  = {Novel Approaches to [Topic]},
+  author = {Chen, Mei},
+  school = {University of [Name]},
+  year   = {2022},
+  type   = {PhD Dissertation},
+  month  = {may},
+  url    = {https://example.edu/handle/xxxx}
+}
+
+% Master's thesis example
+@mastersthesis{smith2023thesis,
+  title  = {Methods for [Topic] Analysis},
+  author = {Smith, Robert},
+  school = {University of [Name]},
+  year   = {2023},
+  month  = {jun}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MISC (for websites, software, datasets, etc.)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required fields: author/title
+% Optional fields: howpublished, month, year, note, url
+
+@misc{example2023software,
+  title        = {[Software Name]: A Tool for [Purpose]},
+  author       = {Author, First and Author, Second and others},
+  howpublished = {GitHub repository},
+  year         = {2023},
+  url          = {https://github.com/example/tool},
+  note         = {Accessed: 2023-12-15}
+}
+
+% Dataset citation
+@misc{example2009dataset,
+  author       = {Author, First and Author, Second and Author, Third},
+  title        = {[Dataset Name]: A Dataset for [Purpose]},
+  howpublished = {International Conference on [Field]},
+  year         = {2009},
+  url          = {http://www.example-dataset.org/}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TIPS FOR BIBTEXT ENTRIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Always use consistent citation keys (e.g., firstauthorYEARfirstword)
+% 2. Include DOIs and URLs whenever available
+% 3. Use proper capitalization in titles (BibTeX will handle case conversion)
+% 4. For author names, use format: "Last Name, First Name"
+% 5. Separate multiple authors with "and"
+% 6. Use curly braces {} to protect capitalization, e.g., {DNA}, {RNA}, {pH}
+% 7. For conference papers, include the full name of the conference
+% 8. For arXiv papers, include both the arXiv identifier and proper classification
+% 9. Month fields should use three-letter abbreviations: jan, feb, mar, etc.
+% 10. The "note" field is useful for additional information 
