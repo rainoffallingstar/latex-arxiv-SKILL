@@ -223,6 +223,10 @@ def score_recency(published: str | None) -> tuple[float, str]:
             except Exception:
                 return 3.0, "unparseable_date"
 
+    # Ensure pub_date is timezone-aware (UTC)
+    if pub_date.tzinfo is None or pub_date.tzinfo.utcoffset(pub_date) is None:
+        pub_date = pub_date.replace(tzinfo=timezone.utc)
+
     now = datetime.now(timezone.utc)
     age_months = (now - pub_date).days / 30.44
 
@@ -291,6 +295,8 @@ def _citation_bucket(cites: int, published: str | None) -> tuple[float, str]:
     if published:
         try:
             pub_date = datetime.fromisoformat(published.replace("Z", "+00:00"))
+            if pub_date.tzinfo is None or pub_date.tzinfo.utcoffset(pub_date) is None:
+                pub_date = pub_date.replace(tzinfo=timezone.utc)
             now = datetime.now(timezone.utc)
             months_since_pub = max(1, (now - pub_date).days / 30.44)
         except (ValueError, TypeError):
@@ -345,6 +351,11 @@ def score_venue(journal_ref: str | None, primary_category: str | None, categorie
         " ".join(categories or []).lower(),
     ])
 
+    # Check workshop first (more specific pattern match)
+    for venue in WORKSHOP_VENUES:
+        if venue in search_text:
+            return 4.0, f"workshop ({venue})"
+
     # Check top tier
     for venue in TOP_TIER_VENUES:
         if venue in search_text:
@@ -354,11 +365,6 @@ def score_venue(journal_ref: str | None, primary_category: str | None, categorie
     for venue in STRONG_VENUES:
         if venue in search_text:
             return 7.0, f"strong ({venue})"
-
-    # Check workshop
-    for venue in WORKSHOP_VENUES:
-        if venue in search_text:
-            return 4.0, f"workshop ({venue})"
 
     # Heuristic: arXiv without journal_ref is likely preprint only
     if journal_ref and "arxiv" in (journal_ref or "").lower():
@@ -391,14 +397,16 @@ def score_institution(authors_json: str | None) -> tuple[float, str]:
 
     author_text = " ".join(str(a).lower() for a in authors)
 
-    # Check for top labs (highest weight)
+    # Check for top labs (word boundary matching to avoid false positives)
     for lab in TOP_LABS:
-        if lab in author_text:
+        pattern = re.compile(r'\b' + re.escape(lab) + r'\b')
+        if pattern.search(author_text):
             return 10.0, f"top_lab ({lab})"
 
     # Check for top universities
     for uni in TOP_UNIVERSITIES:
-        if uni in author_text:
+        pattern = re.compile(r'\b' + re.escape(uni) + r'\b')
+        if pattern.search(author_text):
             return 9.0, f"top_uni ({uni})"
 
     # Count known institutions for a boost
@@ -406,7 +414,8 @@ def score_institution(authors_json: str | None) -> tuple[float, str]:
     for author in authors:
         author_lower = str(author).lower()
         for known in list(TOP_LABS) + list(TOP_UNIVERSITIES):
-            if known in author_lower:
+            pattern = re.compile(r'\b' + re.escape(known) + r'\b')
+            if pattern.search(author_lower):
                 known_count += 1
                 break
 
@@ -724,7 +733,8 @@ def _check_dblp_for_acceptance(title: str, authors_json: str | None) -> str | No
     if not clean_title:
         return None
 
-    url = f"https://dblp.org/search/publ/api?q={clean_title}&format=json&h=1"
+    import urllib.parse
+    url = f"https://dblp.org/search/publ/api?q={urllib.parse.quote(clean_title)}&format=json&h=1"
     status, body = fetch_url(url, timeout_s=15, retries=1)
     if status != 200 or not body:
         return None
