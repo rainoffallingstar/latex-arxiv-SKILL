@@ -1,19 +1,29 @@
-# Academic Review Paper Writing Framework (Codex SKILL)
+# Academic Review Paper Writing Framework
 
 [English](README.md) . [简体中文](README.zh-CN.md)
 
-An end-to-end, issues-driven **Codex SKILL** for writing academic review/survey papers with verified citations. Supports multiple literature sources, scientific domains, Typst (primary) and LaTeX (legacy) templates, and configurable citation styles. Markdown output via pandoc.
+An end-to-end, issues-driven framework for writing academic review/survey papers with verified citations. Supports multiple literature sources, scientific domains, Typst (primary) and LaTeX (legacy) templates, and configurable citation styles. Markdown output via pandoc. Compatible with Cursor and Codex CLI.
+
+## What's New in v1.1
+
+- **LQS multi-dimensional scoring** — automatic quality scoring of literature (recency, citation impact, venue, institution, acceptance) with must-cite/conditional/drop classification
+- **4 sub-skills** — literature-search, structure-logic, figures-tables, review-sim with automated weakness routing
+- **Review simulation engine** — 5-persona LLM-based peer review with anti-inflation scoring and no-LLM gap-analysis fallback
+- **Typst-first output** — native CJK font support, single-pass compilation
+- **229 tests** — comprehensive coverage across 12 test modules
 
 ## Capabilities
 
 | Dimension | Support |
 |-----------|---------|
 | **Output formats** | Typst (primary), LaTeX (legacy), Markdown (via pandoc) |
-| **Literature sources** | arXiv, PubMed, OpenAlex, Europe PMC, bioRxiv, paper-search |
-| **Scientific domains** | Computer Science, Biomedical, Physics, Chemistry, Engineering, Mathematics, Social Sciences, Environmental |
+| **Literature sources** | arXiv, PubMed, OpenAlex, Europe PMC, bioRxiv, paper-search (12+ sources) |
+| **Scientific domains** | 8 domains auto-detected from topic (CS, biomedical, physics, chemistry, engineering, math, social sciences, environmental) |
+| **Quality scoring** | 5-dimension LQS (recency, citation impact, venue, institution, acceptance) + A/B/C/D depth classification |
+| **Review process** | 5-persona LLM review simulation with anti-inflation rules + gap-analysis-only fallback |
 | **Templates** | Typst: generic academic + biomedical; LaTeX: IEEEtran, article, biomedical (legacy) |
 | **Citation styles** | IEEE numbered (ieee.csl) or author-year (apa.csl) |
-| **Workflow** | Gated: config → plan → issues CSV → per-section writing → QA → compile |
+| **Workflow** | Gated: config → plan → issues CSV → per-section writing → iterative review → QA → compile |
 
 ## What's in here
 

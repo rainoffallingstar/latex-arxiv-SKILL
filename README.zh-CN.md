@@ -1,19 +1,29 @@
-# 学术综述论文写作框架 (Codex SKILL)
+# 学术综述论文写作框架
 
 [English](README.md) · 简体中文
 
-一个端到端、issue 驱动的 **Codex SKILL**，用于撰写带有已验证引文的学术综述论文。支持多文献来源、多学科领域、Typst（主力）和 LaTeX（传统）模板、可配置引用风格，以及通过 pandoc 生成 Markdown 输出。
+一个端到端、issue 驱动的学术综述论文写作框架，支持已验证引文、多文献来源、多学科领域、Typst（主力）/ LaTeX（传统）模板、可配置引用风格，以及通过 pandoc 生成 Markdown 输出。兼容 Cursor 和 Codex CLI。
+
+## v1.1 新特性
+
+- **LQS 多维度评分** — 自动文献质量评分（时效性、引用影响力、发表渠道、机构、被接受状态），含 must-cite/conditional/drop 分类
+- **4 个子技能** — literature-search、structure-logic、figures-tables、review-sim，支持自动弱点路由
+- **审稿模拟引擎** — 5 角色 LLM 审稿，含反通胀评分和无 LLM 时的缺口分析降级模式
+- **Typst 优先输出** — 原生中日韩字体支持，单次编译
+- **229 个测试** — 覆盖 12 个测试模块的全面测试
 
 ## 能力
 
 | 维度 | 支持 |
 |------|------|
 | **输出格式** | Typst（主力）、LaTeX（传统）、Markdown（通过 pandoc） |
-| **文献来源** | arXiv、PubMed、OpenAlex、Europe PMC、bioRxiv、paper-search |
-| **学科领域** | 计算机科学、生物医学、物理学、化学、工程学、数学、社会科学、环境科学 |
+| **文献来源** | arXiv、PubMed、OpenAlex、Europe PMC、bioRxiv、paper-search（12+ 来源） |
+| **学科领域** | 8 个领域自动检测（CS、生物医学、物理、化学、工程、数学、社科、环境） |
+| **质量评分** | 5 维度 LQS（时效性、引用影响、发表渠道、机构、被接受状态）+ A/B/C/D 引用深度分类 |
+| **审稿流程** | 5 角色 LLM 审稿模拟，含反通胀规则 + 无 LLM 时的缺口分析降级 |
 | **模板** | Typst：通用学术 + 生物医学；LaTeX：IEEEtran、article、biomedical（传统） |
 | **引用风格** | IEEE 编号 (ieee.csl) 或 著者-年份 (apa.csl) |
-| **工作流** | 门禁制：配置 → 计划 → issues CSV → 逐节写作 → QA → 编译 |
+| **工作流** | 门禁制：配置 → 计划 → issues CSV → 逐节写作 → 迭代审稿 → QA → 编译 |
 
 ## 这里有什么
 

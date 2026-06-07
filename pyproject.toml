@@ -8,17 +8,37 @@ version = "1.1.0"
 description = "AI-assisted academic review paper writing framework"
 requires-python = ">=3.8"
 license = {text = "MIT"}
+readme = "README.md"
+authors = [
+    {name = "latex-arxiv-skill contributors"},
+]
+urls = {Repository = "https://github.com/renocrypt/latex-arxiv-skill"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+]
 dependencies = ["pyyaml>=6.0,<7"]
 
+[tool.setuptools.package-dir]
+"paper_scripts" = ".codex/skills/academic-paper-writer/scripts"
+
 [project.scripts]
-paper-bootstrap = "scripts.bootstrap_review_paper:main"
-paper-lit = "scripts.literature_registry:main"
-paper-config = "scripts.paper_config:main"
-paper-compile = "scripts.compile_paper:main"
-paper-validate = "scripts.validate_paper_issues:main"
-paper-review-gaps = "scripts.review_gaps:main"
-paper-review-sim = "scripts.run_review_simulation:main"
-paper-lqs = "scripts.lqs_scorer:main"
+paper-bootstrap = "paper_scripts.bootstrap_review_paper:main"
+paper-lit = "paper_scripts.literature_registry:main"
+paper-config = "paper_scripts.paper_config:main"
+paper-compile = "paper_scripts.compile_paper:main"
+paper-validate = "paper_scripts.validate_paper_issues:main"
+paper-review-gaps = "paper_scripts.review_gaps:main"
+paper-review-sim = "paper_scripts.run_review_simulation:main"
+paper-lqs = "paper_scripts.lqs_scorer:main"
+paper-plan = "paper_scripts.create_paper_plan:main"
 
 [project.optional-dependencies]
 test = ["pytest>=7.0,<9"]
