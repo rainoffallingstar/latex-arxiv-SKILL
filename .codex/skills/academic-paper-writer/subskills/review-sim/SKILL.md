@@ -1,5 +1,5 @@
 ---
-name: paper-review-simulation
+name: review-sim
 description: Multi-persona peer review simulation that drives the iteration loop by routing weaknesses back to sub-skills.
 ---
 

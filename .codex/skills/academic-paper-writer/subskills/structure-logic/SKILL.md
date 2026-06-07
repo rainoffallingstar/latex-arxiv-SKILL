@@ -1,5 +1,5 @@
 ---
-name: paper-structure-logic
+name: structure-logic
 description: Chapter architecture, paragraph logic chains, taxonomy design, formal claims, and hedge language for survey papers.
 ---
 

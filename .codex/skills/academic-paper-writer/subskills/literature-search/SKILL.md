@@ -1,5 +1,5 @@
 ---
-name: paper-literature-search
+name: literature-search
 description: Multi-source literature discovery, BibTeX export, and citation verification.
 ---
 

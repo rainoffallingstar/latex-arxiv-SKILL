@@ -1,5 +1,5 @@
 ---
-name: paper-figures-tables
+name: figures-tables
 description: High information-density tables and vector figures for academic papers, with quality checklists and quantity targets.
 ---
 
