@@ -1,8 +1,11 @@
 # Changelog
 
-## v1.1.0 (unreleased) — Typst-First Framework
+## v1.1.0 (2026-06-07) — Typst-First Framework
 
 ### Major Changes
+- **LQS multi-dimensional scoring**: New `lqs_scorer.py` implements 5-dimension weighted scoring (recency, citation impact, venue, institution, acceptance) with A/B/C/D depth classification and venue upgrade pipeline via DBLP cross-check.
+- **Sub-skills system**: 4 sub-skills (literature-search, structure-logic, figures-tables, review-sim) with weakness routing protocol that maps review findings to remediation sub-skills.
+- **Review simulation engine**: `run_review_simulation.py` with 5-persona LLM-based peer review, anti-inflation scoring rules, and no-LLM gap-analysis fallback mode.
 - **Typst-first output**: `main.template.typ` and `main-biomedical.template.typ` are the primary templates. Typst compiles in a single pass (`typst compile`) with native CJK font support and `@key` citation syntax.
 - **LaTeX demoted to legacy**: LaTeX templates moved to `template/latex/`. Still functional via `output_format: latex` in config.
 - **Markdown output**: `compile_paper.py --format markdown` converts Typst to Markdown via pandoc.
