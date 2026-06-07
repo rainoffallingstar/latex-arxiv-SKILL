@@ -48,7 +48,7 @@ metadata:
 **Conventions**: run `python3 scripts/...` from this skill folder; `<paper_dir>` is the paper root
 (contains `main.typ`, `ref.bib`, `plan/`, `issues/`, `notes/`).
 Use `scripts/literature_registry.py` for all literature discovery and BibTeX management.
-For literature search, also use the `paper-search` CLI (available as system skill).
+For literature search, the `paper-search` CLI is an optional complementary tool (available as system skill).
 
 ---
 
@@ -365,3 +365,59 @@ Status: `TODO` → `DOING` → `DONE`. Schema validated by `validate_paper_issue
 - **Do not overwrite** user files without confirmation.
 - **Issues CSV** is the contract; mark `DONE` only when criteria met.
 - **No submission bundles** unless user requests.
+
+
+---
+
+## Phase Routing
+
+Paper writing follows a 3-phase iterative framework.
+
+### Phase 1: Draft (target: 6.0/10)
+| Iter | Focus | Actions |
+|------|-------|---------|
+| 1 | Structure | skeleton + section 1-2 + compile |
+| 2 | Literature | High-recall retrieval + LQS scoring |
+| 3 | Structure + Figures | section 3-6 + 2+ figures |
+| 4 | Literature + Structure | A/B/C/D classification + Venue Upgrade |
+| 5 | Verification + Review | Verification -> compile -> review |
+| 6 | Route fixes | Route weaknesses to sub-skills -> compile |
+
+### Phase 2: Deep Improvement (target: 7.5-8.0)
+| Iter | Focus | Actions |
+|------|-------|---------|
+| 7 | Structure | formal claims + critical assessment |
+| 8 | Figures + Structure | Addedfigures + Integration |
+| 9 | Compile + Review | Compile -> review -> route |
+
+### Phase 3: Sprint (target: 8.5+)
+Loop: review -> route -> fix -> compile
+Stop: score >= 8.5 OR delta<=0.3 for 2 rounds OR iter>12
+
+---
+
+## Weakness Routing Protocol
+
+| reviewweakness | Routes To | Action |
+|---------|--------|------|
+| Citation coverage insufficient | Literature | Supplementary search |
+| Too many arXiv-only refs | Literature | Venue Upgrade |
+| Missing recent papers | Literature | Targeted search |
+| Structure unclear | Structure | Reorganize |
+| Analysis lacks depth | Structure | Critical Assessment |
+| Taxonomy not novel | Structure | Redesign |
+| Claims too strong | Structure | Hedge downgrade |
+| Tables incomparable | Figures | Regroup |
+| Missing visualizations | Figures | Addedfigures |
+| No error bars | Figures | Add standard deviation |
+
+---
+
+## Sub-skill Index
+
+| Sub-skill | Path | Core Capability |
+|----------|------|---------|
+| Literature Survey | subskills/literature-search/SKILL.md | LQS, A/B/C/D, Venue |
+| Structure & Logic | subskills/structure-logic/SKILL.md | Chapter architecture, paragraph patterns, taxonomy |
+| Figures & Tables | subskills/figures-tables/SKILL.md | Table specifications, figure priority |
+| Review Simulation | subskills/review-sim/SKILL.md | review, anti-inflation, route |
