@@ -3,7 +3,7 @@ name: literature-search
 description: Multi-source literature discovery, BibTeX export, and citation verification.
 ---
 
-> NOTE: The LQS scoring, depth classification (A/B/C/D), and venue upgrade features are planned but not yet implemented. Currently available: multi-source search, deduplication, BibTeX export, and citation verification.
+> LQS scoring, depth classification, venue upgrade, and quality reporting are implemented in `scripts/lqs_scorer.py`. Multi-source search, deduplication, and BibTeX export are handled by `literature_registry.py`.
 
 
 
