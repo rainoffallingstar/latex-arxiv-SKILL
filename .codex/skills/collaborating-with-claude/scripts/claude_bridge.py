@@ -19,16 +19,19 @@ def read_output_lines(cmd: List[str], cwd: Optional[str] = None) -> Tuple[List[s
     claude_path = shutil.which("claude") or cmd[0]
     popen_cmd[0] = claude_path
 
-    process = subprocess.Popen(
-        popen_cmd,
-        shell=False,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
-        encoding="utf-8",
-        cwd=cwd,
-    )
+    try:
+        process = subprocess.Popen(
+            popen_cmd,
+            shell=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            encoding="utf-8",
+            cwd=cwd,
+        )
+    except FileNotFoundError:
+        return [], [f"Error: Claude CLI not found. Install with: npm install -g @anthropic-ai/claude-code"], 1
 
     stdout, stderr = process.communicate()
     stdout_lines = stdout.splitlines() if stdout else []

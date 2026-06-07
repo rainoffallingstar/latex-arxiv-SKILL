@@ -17,6 +17,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 
 SKILL_DIR = Path(__file__).resolve().parent.parent

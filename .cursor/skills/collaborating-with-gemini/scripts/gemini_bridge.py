@@ -23,16 +23,19 @@ def run_shell_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[List[s
     gemini_path = shutil.which("gemini") or cmd[0]
     popen_cmd[0] = gemini_path
 
-    process = subprocess.Popen(
-        popen_cmd,
-        shell=False,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
-        encoding="utf-8",
-        cwd=cwd,
-    )
+    try:
+        process = subprocess.Popen(
+            popen_cmd,
+            shell=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            encoding="utf-8",
+            cwd=cwd,
+        )
+    except FileNotFoundError:
+        return [], [f"Error: Gemini CLI not found. Install with: npm install -g @google/gemini-cli"], 1
 
     output_queue: "queue.Queue[Optional[str]]" = queue.Queue()
     GRACEFUL_SHUTDOWN_DELAY = 0.3
