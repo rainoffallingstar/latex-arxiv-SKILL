@@ -99,12 +99,14 @@ def parse_sections(source_path: Path) -> list[dict]:
         sec_lines = section_text.split("\n")
         paragraph_count = sum(1 for line in sec_lines if line.strip() and not line.strip().startswith("%"))
 
+        sec_clean = re.sub(r'%.*', '', section_text)
         sections.append({
             "title": title,
             "citation_count": len(unique_keys),
             "citation_usages": total_usages,
             "char_count": len(section_text),
             "paragraph_count": paragraph_count,
+            "section_text": sec_clean,
         })
 
     return sections
@@ -160,12 +162,22 @@ def classify_gaps(
             continue
 
         # Check for expected keyword coverage
-        if expected_keywords:
+        sec_text_raw = sec.get("section_text", "")
+        if expected_keywords and sec_text_raw:
             for sec_pattern, keywords in expected_keywords.items():
                 if sec_pattern.lower() in title.lower():
-                    # Cannot check without the actual section text here;
-                    # the keyword check is done at a higher level
-                    pass
+                    missing = [kw for kw in keywords if kw.lower() not in sec_text_raw.lower()]
+                    if missing:
+                        gaps.append({
+                            "priority": "P1",
+                            "section": title,
+                            "issue": f"Expected keywords not found: {', '.join(missing[:5])}",
+                            "est_work": "1-2 paragraphs covering missing concepts",
+                            "impact": "Missing key concepts in section",
+                            "citation_count": cite_count,
+                            "min_expected": min_citations,
+                            "paragraph_count": para_count,
+                        })
 
         # P1: Citation count is borderline (within 50% above minimum)
         if cite_count < min_citations * 1.5:
@@ -448,6 +460,7 @@ def main() -> int:
     sp_analyze = sub.add_parser("analyze", help="Run gap analysis for a review round")
     sp_analyze.add_argument("--round", type=int, default=1, help="Review round number")
     sp_analyze.add_argument("--min-citations", type=int, help="Override minimum citations per section")
+    sp_analyze.add_argument("--from-review", help="Path to review JSON file")
     sp_analyze.add_argument("--output", help="Write output to file")
 
     sp_history = sub.add_parser("history", help="Show round-over-round citation growth")

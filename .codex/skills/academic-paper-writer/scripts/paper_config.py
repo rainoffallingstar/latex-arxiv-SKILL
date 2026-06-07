@@ -276,6 +276,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 
+DOMAIN_EXCLUSIONS: dict[str, list[str]] = {
+    "biomedical": ["robot", "robotic", "robotics"],
+    "engineering": ["surgery", "surgical", "clinical", "patient"],
+}
+
+
 def detect_domain(topic: str) -> tuple[str, float]:
     """Detect the most likely academic domain from a topic string.
 

@@ -153,6 +153,11 @@ def _scaffold_typst_project(
     template_dir: Path | None = None,
 ) -> None:
     """Scaffold a Typst project."""
+    try:
+        from paper_utils import check_typst_available
+        if not check_typst_available()["available"]:
+            print("warning: typst not found. Install: brew install typst")
+    except ImportError: pass
     if template_dir is None:
         template_dir = get_template_dir()
     if not dest_dir.exists():
@@ -211,6 +216,11 @@ def _scaffold_latex_project(
     template_dir: Path | None = None,
 ) -> None:
     """Scaffold a LaTeX project (legacy)."""
+    try:
+        from paper_utils import check_latex_available
+        if not check_latex_available()["available"]:
+            print("warning: LaTeX not found. Install: brew install --cask mactex")
+    except ImportError: pass
     if template_dir is None:
         template_dir = get_template_dir()
 

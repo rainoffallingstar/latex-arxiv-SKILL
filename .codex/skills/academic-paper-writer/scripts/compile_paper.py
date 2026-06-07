@@ -136,19 +136,13 @@ def cross_check_citations(project_dir: Path) -> int:
     tex_content = src_path.read_text(encoding="utf-8", errors="replace")
     bib_content = bib_path.read_text(encoding="utf-8", errors="replace")
 
-    cite_keys: set[str] = set()
-
-    if src_path.suffix == ".typ":
-        # Typst @key syntax
-        for m in re.finditer(r'@([a-zA-Z][a-zA-Z0-9_\-:]*)', tex_content):
-            cite_keys.add(m.group(1))
-    else:
-        # LaTeX \cite{key1,key2,...} syntax
-        for m in re.finditer(r'\\(?:cite|citep|citet|citealt|citealp|citenum|footcite|parencite)\{([^}]+)\}', tex_content):
-            for k in m.group(1).split(","):
-                k = k.strip()
-                if k:
-                    cite_keys.add(k)
+    # Use shared citation counter from paper_utils
+    try:
+        from paper_utils import count_citations
+        cite_info = count_citations(src_path)
+        cite_keys: set[str] = set(cite_info.get("keys", []))
+    except ImportError:
+        cite_keys: set[str] = set()
 
     bib_re = re.compile(r'@\w+\{([^,]+),')
     bib_keys: set[str] = set()

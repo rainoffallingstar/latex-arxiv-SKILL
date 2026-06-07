@@ -157,7 +157,7 @@ def main() -> int:
         if plan_template
         else None
     )
-    issues_content = issues_template  # CSV doesn't need placeholder replacement
+    issues_content = issues_template.replace('<paper>', topic).replace('<slug>', slug)
     literature_content = (
         replace_placeholders(literature_template, topic, timestamp, slug, latex_available)
         if literature_template

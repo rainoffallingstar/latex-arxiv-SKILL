@@ -79,6 +79,29 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+
+
+# === Rate limiter for proactive API throttling ===
+import threading
+
+class RateLimiter:
+    """Per-domain rate limiter for proactive API throttling."""
+    _RATE_LIMITS = {"arxiv": 3.0, "pubmed": 1.0, "openalex": 0.5, "europepmc": 1.0, "biorxiv": 1.0, "paper-search": 0.5}
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._last_call = {}
+    def wait(self, source: str) -> None:
+        interval = self._RATE_LIMITS.get(source, 1.0)
+        with self._lock:
+            now = time.monotonic()
+            if source in self._last_call:
+                elapsed = now - self._last_call[source]
+                if elapsed < interval:
+                    time.sleep(interval - elapsed)
+            self._last_call[source] = time.monotonic()
+
+_rate_limiter = RateLimiter()
+
 def fetch_url(url: str, *, timeout_s: int = 30, retries: int = 3) -> tuple[int | None, bytes]:
     """Fetch a URL with exponential backoff on 429 rate-limit responses."""
     for attempt in range(retries + 1):
