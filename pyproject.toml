@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "latex-arxiv-skill"
+version = "1.1.0"
+description = "AI-assisted academic review paper writing framework"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = ["pyyaml>=6.0,<7"]
+
+[project.scripts]
+paper-bootstrap = "scripts.bootstrap_review_paper:main"
+paper-lit = "scripts.literature_registry:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
