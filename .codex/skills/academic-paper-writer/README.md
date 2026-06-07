@@ -12,12 +12,13 @@ A structured, issue-driven workflow for writing academic review papers using LLM
 │   ├── bootstrap_review_paper.py  # Scaffold new paper projects
 │   ├── paper_config.py           # Generate paper-config.yml
 │   ├── literature_registry.py    # Multi-source literature discovery + BibTeX
+│   ├── lqs_scorer.py             # LQS scoring, depth classification, venue upgrade
 │   ├── create_paper_plan.py      # Draft plan from framework
-│   ├── run_review_simulation.py  # LLM-based peer review simulation
+│   ├── run_review_simulation.py  # LLM-based peer review simulation (with no-LLM fallback)
 │   ├── review_gaps.py            # Gap analysis against citation/paragraph targets
 │   ├── compile_paper.py          # Typst/LaTeX compilation
-│   ├── validate_paper_issues.py  # Validate issues CSV
-│   └── paper_utils.py            # Shared utilities
+│   ├── validate_paper_issues.py  # Validate issues CSV (+ --sync, --resume)
+│   └── paper_utils.py            # Shared utilities (+ tool availability checks)
 └── subskills/                     # Sub-skill specializations
     ├── literature-search/SKILL.md    # Literature survey + LQS scoring
     ├── structure-logic/SKILL.md      # Paper structure + logic patterns
@@ -37,57 +38,99 @@ A structured, issue-driven workflow for writing academic review papers using LLM
 
 ## Quick Start
 
-### 1. Set up paper config
+### 1. Detect domain and generate paper config
 
 ```bash
-python3 .codex/skills/academic-paper-writer/scripts/paper_config.py \
-  --domain "Your Research Domain"
+# Detect domain from topic
+python3 .codex/skills/academic-paper-writer/scripts/paper_config.py detect \
+  --topic "Recent Advances in Transformer Architectures"
+
+# Generate full config
+python3 .codex/skills/academic-paper-writer/scripts/paper_config.py generate \
+  --topic "Recent Advances in Transformer Architectures" \
+  --output paper-config.yml
 ```
 
-### 2. Discover literature
+### 2. Scaffold project and discover literature
 
 ```bash
+# Scaffold with Typst template (default)
+python3 .codex/skills/academic-paper-writer/scripts/bootstrap_review_paper.py \
+  --stage kickoff --topic "Recent Advances in Transformer Architectures" \
+  --name transformer-review --out .
+
+# Search for literature across all sources
 python3 .codex/skills/academic-paper-writer/scripts/literature_registry.py \
-  --domain "topic" --keywords "key1,key2"
+  --project-dir ./transformer-review search all "transformer architecture attention"
 ```
 
-### 3. Scaffold project
+### 3. Create issues CSV (after user approves plan)
 
 ```bash
 python3 .codex/skills/academic-paper-writer/scripts/bootstrap_review_paper.py \
-  --title "My Survey" --domain "topic" --output ./papers/my-survey
+  --stage issues --topic "Recent Advances in Transformer Architectures" \
+  --name transformer-review --out .
 ```
 
-### 4. Create issues CSV
+### 4. Validate and resume
 
 ```bash
-python3 .codex/skills/academic-paper-writer/scripts/create_paper_plan.py \
-  --project-dir ./papers/my-survey
+# Validate issues CSV
+python3 .codex/skills/academic-paper-writer/scripts/validate_paper_issues.py \
+  transformer-review/issues/*.csv
+
+# Find next actionable issue
+python3 .codex/skills/academic-paper-writer/scripts/validate_paper_issues.py \
+  transformer-review/issues/*.csv --resume
 ```
 
-### 5. Run review simulation
+### 5. Score literature quality (LQS)
 
 ```bash
+# Score all works in the registry
+python3 .codex/skills/academic-paper-writer/scripts/lqs_scorer.py \
+  --project-dir ./transformer-review score-all --threshold 5.0
+
+# Generate quality report
+python3 .codex/skills/academic-paper-writer/scripts/lqs_scorer.py \
+  --project-dir ./transformer-review quality-report
+```
+
+### 6. Run review simulation
+
+```bash
+# Full LLM review (requires gemini or claude CLI)
 python3 .codex/skills/academic-paper-writer/scripts/run_review_simulation.py \
-  --project-dir ./papers/my-survey --round 1
+  --project-dir ./transformer-review --round 1
 
 # With 3 personas, using claude:
 python3 .codex/skills/academic-paper-writer/scripts/run_review_simulation.py \
-  --project-dir ./papers/my-survey --round 2 --personas 3 --llm claude
+  --project-dir ./transformer-review --round 2 --personas 3 --llm claude
+
+# Falls back to gap-analysis-only if no LLM bridge is installed
 ```
 
-### 6. Analyze gaps
+### 7. Analyze gaps
 
 ```bash
-python3 .codex/skills/academic-paper-writer/scripts/review_gaps.py analyze \
-  --project-dir ./papers/my-survey --round 1
+python3 .codex/skills/academic-paper-writer/scripts/review_gaps.py \
+  --project-dir ./transformer-review analyze --round 1
 ```
 
-### 7. Compile
+### 8. Compile
 
 ```bash
+# Typst (default)
 python3 .codex/skills/academic-paper-writer/scripts/compile_paper.py \
-  --project-dir ./papers/my-survey
+  --project-dir ./transformer-review
+
+# LaTeX (legacy)
+python3 .codex/skills/academic-paper-writer/scripts/compile_paper.py \
+  --project-dir ./transformer-review --format latex
+
+# Markdown via pandoc
+python3 .codex/skills/academic-paper-writer/scripts/compile_paper.py \
+  --project-dir ./transformer-review --format markdown
 ```
 
 ## Core Workflow
