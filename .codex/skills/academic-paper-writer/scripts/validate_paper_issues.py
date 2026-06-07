@@ -189,7 +189,7 @@ def sync_issues(
 
 def main() -> int:
     if len(sys.argv) < 2:
-        return fail("usage: validate_paper_issues.py <issues.csv> [--strict] [--sync [--dry-run]] [--tex <path>]")
+        return fail("usage: validate_paper_issues.py <issues.csv> [--strict] [--sync [--dry-run]] [--tex <path>] [--resume]")
 
     # Handle --sync before the CSV path
     args = sys.argv[1:]
@@ -197,6 +197,7 @@ def main() -> int:
     dry_run = False
     tex_path = None
     csv_arg = None
+    resume_mode = False
 
     i = 0
     while i < len(args):
@@ -205,6 +206,8 @@ def main() -> int:
             sync_mode = True
         elif arg == "--dry-run":
             dry_run = True
+        elif arg == "--resume":
+            resume_mode = True
         elif arg == "--tex" and i + 1 < len(args):
             i += 1
             tex_path = Path(args[i])
@@ -348,6 +351,27 @@ def main() -> int:
 
     if warnings > 0:
         print(f"\n{warnings} warning(s) found.", file=sys.stderr)
+
+    # Resume mode: find next actionable issue
+    if resume_mode:
+        next_issue = None
+        for i in range(1, len(rows)):
+            row_data = dict(zip(REQUIRED_COLUMNS, rows[i]))
+            status = row_data["Status"].strip()
+            if status in ("TODO", "DOING"):
+                next_issue = row_data
+                break
+
+        if next_issue:
+            print(f"\n>>> RESUME POINT <<<")
+            print(f"Next: {next_issue['ID']} - {next_issue['Title']}")
+            print(f"  Phase: {next_issue['Phase']}")
+            print(f"  Status: {next_issue['Status']}")
+            print(f"  Target citations: {next_issue['Target_Citations']}")
+            print(f"  Verified citations: {next_issue['Verified_Citations']}")
+            print(f"  Acceptance criteria: {next_issue['Acceptance']}")
+        else:
+            print("\nAll issues are DONE or SKIP. Nothing to resume.")
 
     return 0
 

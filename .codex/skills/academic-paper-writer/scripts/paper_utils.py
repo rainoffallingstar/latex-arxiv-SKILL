@@ -343,3 +343,45 @@ def get_template_for_domain(
 def resolve_registry_db_path(project_dir: Path | str) -> Path:
     """Get the default path for the literature-registry.sqlite3 database."""
     return Path(project_dir) / "notes" / "literature-registry.sqlite3"
+
+
+# ---------------------------------------------------------------------------
+# Tool availability checks
+# ---------------------------------------------------------------------------
+
+_TOOL_HINTS = {
+    "typst": "Install with: brew install typst  (https://typst.app)",
+    "pdflatex": "Install with: brew install --cask mactex  or  apt install texlive",
+    "bibtex": "Install with: brew install --cask mactex  or  apt install texlive",
+    "pandoc": "Install with: brew install pandoc  or  apt install pandoc",
+    "gemini": "Install Gemini CLI and run gemini_bridge.py via collaborating-with-gemini skill",
+    "claude": "Install Claude Code CLI and run claude_bridge.py via collaborating-with-claude skill",
+}
+
+
+def check_tool(command: str) -> bool:
+    """Check if a command-line tool is available.
+
+    Prints a clear install hint if not found.
+
+    Returns:
+        True if the tool is available, False otherwise.
+    """
+    path = shutil.which(command)
+    if path is None:
+        hint = _TOOL_HINTS.get(command, f"Please install '{command}' to use this feature.")
+        print(f"Warning: '{command}' not found. {hint}", file=sys.stderr)
+        return False
+    return True
+
+
+def check_required_tools(tools: list[str]) -> bool:
+    """Check all required tools and return True only if all are available.
+
+    Prints warnings for each missing tool.
+    """
+    all_ok = True
+    for tool in tools:
+        if not check_tool(tool):
+            all_ok = False
+    return all_ok

@@ -210,6 +210,56 @@ def generate_gaps(weaknesses, overall_score, dimension_scores):
     return gaps
 
 
+def check_bridge_available(llm_type: str) -> bool:
+    """Check if the specified LLM bridge script is available."""
+    if llm_type == "gemini":
+        bridge = SKILL_DIR.parent / "collaborating-with-gemini" / "scripts" / "gemini_bridge.py"
+    else:
+        bridge = SKILL_DIR.parent / "collaborating-with-claude" / "scripts" / "claude_bridge.py"
+    return bridge.exists()
+
+
+def run_gap_analysis_only(project_dir: Path, round_num: int, output_path: Path) -> dict[str, Any]:
+    """Run gap analysis as fallback when no LLM bridge is available."""
+    print("\n*** No LLM bridge available — running gap analysis only ***")
+    print("Install gemini CLI or claude CLI for full multi-persona review.\n")
+
+    review_gaps_path = SKILL_DIR / "scripts" / "review_gaps.py"
+    gaps_data: list[dict] = []
+
+    if review_gaps_path.exists():
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("review_gaps", review_gaps_path)
+            rg = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(rg)
+
+            source = rg._find_source_file(project_dir)
+            if source:
+                sections = rg.parse_sections(source)
+                gaps_data = rg.classify_gaps(sections)
+                print(f"Analyzed {len(sections)} sections, found {len(gaps_data)} gaps.")
+            else:
+                print("No source file (main.typ/main.tex) found in project directory.")
+        except Exception as e:
+            print(f"Gap analysis error: {e}")
+
+    p0 = sum(1 for g in gaps_data if g.get("priority") == "P0")
+    p1 = sum(1 for g in gaps_data if g.get("priority") == "P1")
+    p2 = sum(1 for g in gaps_data if g.get("priority") == "P2")
+
+    return {
+        "round": round_num,
+        "project_dir": str(project_dir),
+        "mode": "gap-analysis-only",
+        "llm_used": "none (fallback)",
+        "personas_used": [],
+        "gaps": gaps_data,
+        "gap_summary": {"P0_critical": p0, "P1_recommended": p1, "P2_optional": p2},
+        "recommendation": "N/A — install gemini CLI or claude CLI for full review",
+    }
+
+
 def main():
     args = parse_args()
     proj = Path(args.project_dir)
@@ -219,7 +269,15 @@ def main():
 
     reviews_dir = proj / "reviews"
     reviews_dir.mkdir(parents=True, exist_ok=True)
-    output_path = args.output or str(reviews_dir / f"review-round-{args.round}.json")
+    output_path = Path(args.output or str(reviews_dir / f"review-round-{args.round}.json"))
+
+    # Check if LLM bridge is available; fall back to gap analysis if not
+    if not check_bridge_available(args.llm):
+        review = run_gap_analysis_only(proj, args.round, output_path)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(review, f, indent=2, ensure_ascii=False)
+        print(f"\nGap analysis saved to: {output_path}")
+        return 0
 
     persona_names = list(REVIEWER_PERSONAS.keys())[:args.personas]
     templates = load_prompt_templates()
